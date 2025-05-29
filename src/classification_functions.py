@@ -89,7 +89,7 @@ def check_assertions(func_node, strictness):
             if isinstance(test, ast.Compare):
                 ops = test.ops
                 if len(ops) == 2:
-                    if strictness == 1 and strictness == 2 and strictness == 3: #low, medium and high
+                    if strictness == 1 or strictness == 2 or strictness == 3: #low, medium and high
                         op1, op2 = ops
                         valid_ops = (ast.Lt, ast.LtE, ast.Gt, ast.GtE)
                         if isinstance(op1, valid_ops) and isinstance(op2, valid_ops):
@@ -98,13 +98,13 @@ def check_assertions(func_node, strictness):
                             if is_less or is_greater:
                                 add_unique(1) 
                 elif len(ops) == 1: #check for only one operation
-                    if strictness == 1 and strictness == 2: #low and medium
+                    if strictness == 1 or strictness == 2: #low and medium
                         op = ops[0]
                         if isinstance(op, (ast.Lt, ast.LtE, ast.Gt, ast.GtE)): # test for <, >, <=, >=
                             add_unique(1)  # x < a or x > a
             
             # assert f(a, b, ...) == f(..., b, a)  (order of arguments is arbitrary, but the actual arguments are the same)
-            if strictness == 1 and strictness == 2 and strictness == 3: #low, medium and high
+            if strictness == 1 or strictness == 2 or strictness == 3: #low, medium and high
                 if isinstance(test, ast.Compare) and len(test.ops) == 1 and isinstance(test.ops[0], ast.Eq):
                     left, right = test.left, test.comparators[0]
                     if isinstance(left, ast.Call) and isinstance(right, ast.Call): #check for both functions
@@ -113,7 +113,7 @@ def check_assertions(func_node, strictness):
                                 add_unique(2)
 
             #assert f(x) == g(x)
-            if strictness == 1 and strictness == 2: #low and medium
+            if strictness == 1 or strictness == 2: #low and medium
                 if isinstance(test, ast.Compare) and len(test.ops) == 1 and isinstance(test.ops[0], ast.Eq):
                     left, right = test.left, test.comparators[0]
                     if isinstance(left, ast.Call) and isinstance(right, ast.Call): #check for f and g
@@ -123,7 +123,7 @@ def check_assertions(func_node, strictness):
                                     add_unique(2)
 
             #assert f(g(x)) == x
-            if strictness == 1 and strictness == 2 and strictness == 3: #low, medium and high
+            if strictness == 1 or strictness == 2 or strictness == 3: #low, medium and high
                 if isinstance(test, ast.Compare) and len(test.ops) == 1 and isinstance(test.ops[0], ast.Eq):
                     left, right = test.left, test.comparators[0]
                     if (isinstance(left, ast.Call) and len(left.args) == 1 and #check for f
@@ -134,7 +134,7 @@ def check_assertions(func_node, strictness):
                                 add_unique(3)
 
             # assert f(x) == x
-            if strictness == 1 and strictness == 2 and strictness == 3: #low, medium and high
+            if strictness == 1 or strictness == 2 or strictness == 3: #low, medium and high
                 if (isinstance(test, ast.Compare) and len(test.ops) == 1 and isinstance(test.ops[0], ast.Eq)):
                     left, right = test.left, test.comparators[0]
                     if isinstance(left, ast.Call) and len(left.args) == 1: #check if left is a function f
@@ -156,18 +156,18 @@ def check_assertions(func_node, strictness):
                         if len(left.args) == 1 and isinstance(left.args[0], ast.Call):
                             inner_call = left.args[0]
                             if h.is_same_func(inner_call.func, left.func): #check if inner f == f (category 5)
-                                if strictness == 1 and strictness == 2 and strictness == 3: #low, medium and high
+                                if strictness == 1 or strictness == 2 or strictness == 3: #low, medium and high
                                     if len(inner_call.args) == 1 and len(right.args) == 1:
                                         if ast.dump(inner_call.args[0]) == ast.dump(right.args[0]): #check if x == x
                                             add_unique(5)
                             if not h.is_same_func(inner_call.func, left.func): #check if inner f != f (category 4)
-                                if strictness == 1 and strictness == 2: #low and medium
+                                if strictness == 1 or strictness == 2: #low and medium
                                     if len(inner_call.args) == 1 and len(right.args) == 1:
                                         if ast.dump(inner_call.args[0]) == ast.dump(right.args[0]): #check if x == x
                                             add_unique(4)
             
             # assert(f(x + c) >= f(x)) or assert(f(x - c) <= f(x)) (or any operation: x op c)
-            if strictness == 1 and strictness == 2 and strictness == 3: #low, medium and high
+            if strictness == 1 or strictness == 2 or strictness == 3: #low, medium and high
                 if (isinstance(test, ast.Compare) and len(test.ops) == 1 and
                     isinstance(test.ops[0], (ast.GtE, ast.LtE, ast.Gt, ast.Lt))):
 
@@ -187,7 +187,7 @@ def check_assertions(func_node, strictness):
                                 add_unique(10)
 
             #assert(f(c op x) == c op f(x))
-            if strictness == 1 and strictness == 2 and strictness == 3: #low, medium and high
+            if strictness == 1 or strictness == 2 or strictness == 3: #low, medium and high
                 if (isinstance(test, ast.Compare) and len(test.ops) == 1 and isinstance(test.ops[0], ast.Eq)):
                     left, right = test.left, test.comparators[0]
 
@@ -219,7 +219,7 @@ def check_assertions(func_node, strictness):
                                                 add_unique(10)
             
             #assert(f(x op y) == f(x) op f(y))
-            if strictness == 1 and strictness == 2 and strictness == 3: #low, medium and high
+            if strictness == 1 or strictness == 2 or strictness == 3: #low, medium and high
                 if (isinstance(test, ast.Compare) and len(test.ops) == 1 and isinstance(test.ops[0], ast.Eq)):
                     left, right = test.left, test.comparators[0]
 
